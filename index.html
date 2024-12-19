@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Quiz Game</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+	<div class="container mx-auto max-w-2xl p-6">
+		<!-- Modal for displaying fetched questions -->
+		<div id="questions-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+			<div class="bg-white rounded-lg p-6 max-w-md w-full">
+				<h2 class="text-2xl font-bold mb-4">Fetched Questions</h2>
+				<div id="fetched-questions" class="mb-4"></div>
+				<button id="start-quiz-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Start Quiz</button>
+			</div>
+		</div>
+
+		<div id="question-container" class="bg-white rounded-3xl shadow-lg p-8 hidden">
+			<h2 id="question" class="text-3xl font-bold mb-8 text-gray-900"></h2>
+			<div id="answer-buttons" class="grid gap-4">
+				<!-- Answer buttons will be dynamically added here -->
+			</div>
+		</div>
+		<div class="controls mt-8 flex justify-center">
+			<button id="next-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-xl text-lg" style="display: none;">Next</button>
+		</div>
+	</div>
+	<script src="script.js"></script>
+</body>
+</html>
