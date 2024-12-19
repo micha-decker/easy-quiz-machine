@@ -31,12 +31,14 @@ async function startQuiz() {
 }
 
 function displayFetchedQuestions() {
-    fetchedQuestionsElement.innerHTML = ''; // Clear previous questions
-    questions.forEach((q, index) => {
-        const questionText = document.createElement('p');
-        questionText.textContent = `${index + 1}. ${q.question}`;
-        fetchedQuestionsElement.appendChild(questionText);
-    });
+    fetchedQuestionsElement.innerHTML = ''; // Clear previous content
+    
+    // Create and style the count display
+    const countDisplay = document.createElement('p');
+    countDisplay.textContent = `${questions.length} Questions`;
+    countDisplay.className = 'text-4xl font-bold text-center mb-4'; // Add Tailwind classes for big text
+    
+    fetchedQuestionsElement.appendChild(countDisplay);
     questionsModal.classList.remove('hidden'); // Show the modal
 }
 
