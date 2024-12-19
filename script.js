@@ -1,3 +1,4 @@
+// Version 2 - Quiz Application
 const questionElement = document.getElementById('question');
 const answerButtons = document.getElementById('answer-buttons');
 const nextButton = document.getElementById('next-btn');
