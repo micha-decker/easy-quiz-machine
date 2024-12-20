@@ -8,9 +8,60 @@ const fetchedQuestionsElement = document.getElementById('fetched-questions');
 const startQuizButton = document.getElementById('start-quiz-btn');
 const welcomeModal = document.getElementById('welcome-modal');
 const startWelcomeButton = document.getElementById('start-welcome-btn');
+const correctSound = document.getElementById('correctSound');
+const incorrectSound = document.getElementById('incorrectSound');
+
+// Create Audio Context
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Create gain nodes (volume control)
+const correctGain = audioContext.createGain();
+const incorrectGain = audioContext.createGain();
+
+// Set volume to a much lower value
+correctGain.gain.value = 0.01;    // Changed from 0.1 to 0.01 (1% volume)
+incorrectGain.gain.value = 0.01;  // Changed from 0.1 to 0.01 (1% volume)
+
+// Connect gain nodes to audio context destination
+correctGain.connect(audioContext.destination);
+incorrectGain.connect(audioContext.destination);
+
+// Create sources once
+const correctSource = audioContext.createMediaElementSource(correctSound);
+const incorrectSource = audioContext.createMediaElementSource(incorrectSound);
+
+// Connect sources to gain nodes
+correctSource.connect(correctGain);
+incorrectSource.connect(incorrectGain);
+
+// Function to play sound with Web Audio API
+function playSound(audio, gainNode) {
+    // Resume AudioContext if it's suspended
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    audio.currentTime = 0;
+    audio.play();
+}
+
+// ADD DEBUG CODE HERE
+console.log('Correct sound loaded:', correctSound?.readyState);
+console.log('Incorrect sound loaded:', incorrectSound?.readyState);
+
+incorrectSound.addEventListener('canplaythrough', () => {
+    console.log('Incorrect sound is ready to play');
+});
+correctSound.addEventListener('canplaythrough', () => {
+    console.log('Correct sound is ready to play');
+});
 
 console.log('Welcome Modal:', welcomeModal);
 console.log('Start Welcome Button:', startWelcomeButton);
+
+
+
+
 
 // Test click handler
 startWelcomeButton.addEventListener('click', async () => {
@@ -96,7 +147,24 @@ function selectAnswer(e) {
     const selectedButton = e.target;
     const correct = selectedButton.dataset.correct;
 
-    if (correct) score++;
+    if (correct) {
+        if (correctSound) {
+            try {
+                playSound(correctSound, correctGain);
+                score++;
+            } catch (error) {
+                console.log('Error playing correct sound:', error);
+            }
+        }
+    } else {
+        if (incorrectSound) {
+            try {
+                playSound(incorrectSound, incorrectGain);
+            } catch (error) {
+                console.log('Error playing incorrect sound:', error);
+            }
+        }
+    }
 
     Array.from(answerButtons.children).forEach(button => {
         // Remove any previous orange border from all buttons
