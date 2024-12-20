@@ -10,6 +10,8 @@ const welcomeModal = document.getElementById('welcome-modal');
 const startWelcomeButton = document.getElementById('start-welcome-btn');
 const correctSound = document.getElementById('correctSound');
 const incorrectSound = document.getElementById('incorrectSound');
+const soundToggle = document.getElementById('sound-toggle');
+let soundEnabled = true;
 
 // Create Audio Context
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -34,16 +36,25 @@ const incorrectSource = audioContext.createMediaElementSource(incorrectSound);
 correctSource.connect(correctGain);
 incorrectSource.connect(incorrectGain);
 
-// Function to play sound with Web Audio API
-function playSound(audio, gainNode) {
-    // Resume AudioContext if it's suspended
-    if (audioContext.state === 'suspended') {
-        audioContext.resume();
-    }
+// Single sound toggle event listener
+soundToggle.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    soundToggle.setAttribute('aria-checked', soundEnabled);
+    soundToggle.setAttribute('data-state', soundEnabled ? 'checked' : 'unchecked');
     
-    audio.currentTime = 0;
-    audio.play();
-}
+    // Update the state of the inner span element
+    const toggleHandle = soundToggle.querySelector('span');
+    toggleHandle.setAttribute('data-state', soundEnabled ? 'checked' : 'unchecked');
+    
+    // Update gain values based on toggle state
+    if (soundEnabled) {
+        correctGain.gain.value = 0.01;
+        incorrectGain.gain.value = 0.01;
+    } else {
+        correctGain.gain.value = 0;
+        incorrectGain.gain.value = 0;
+    }
+});
 
 // ADD DEBUG CODE HERE
 console.log('Correct sound loaded:', correctSound?.readyState);
@@ -143,6 +154,19 @@ function resetState() {
     }
 }
 
+// Function to play sound with Web Audio API
+function playSound(audio, gainNode) {
+    // Resume AudioContext if it's suspended
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    if (!soundEnabled) return; // Don't play if sound is disabled
+    
+    audio.currentTime = 0;
+    audio.play();
+}
+
 function selectAnswer(e) {
     const selectedButton = e.target;
     const correct = selectedButton.dataset.correct;
@@ -228,3 +252,4 @@ function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
