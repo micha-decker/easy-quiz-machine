@@ -6,6 +6,18 @@ const questionContainer = document.getElementById('question-container');
 const questionsModal = document.getElementById('questions-modal');
 const fetchedQuestionsElement = document.getElementById('fetched-questions');
 const startQuizButton = document.getElementById('start-quiz-btn');
+const welcomeModal = document.getElementById('welcome-modal');
+const startWelcomeButton = document.getElementById('start-welcome-btn');
+
+console.log('Welcome Modal:', welcomeModal);
+console.log('Start Welcome Button:', startWelcomeButton);
+
+// Test click handler
+startWelcomeButton.addEventListener('click', async () => {
+    console.log('Button clicked');
+    welcomeModal.classList.add('hidden');
+    displayFetchedQuestions(); // Show the questions count modal after welcome modal is hidden
+});
 
 let currentQuestionIndex = 0;
 let score = 0;
@@ -27,8 +39,9 @@ async function fetchQuestions() {
 }
 
 async function startQuiz() {
-    questions = await fetchQuestions(); // Fetch questions from Google Sheets
-    displayFetchedQuestions(); // Show the fetched questions in the modal
+    console.log('startQuiz called');
+    welcomeModal.classList.remove('hidden');
+    questions = await fetchQuestions();
 }
 
 function displayFetchedQuestions() {
@@ -131,7 +144,15 @@ nextButton.addEventListener('click', () => {
     }
 });
 
-startQuiz(); // Start the quiz
+startWelcomeButton.addEventListener('click', () => {
+    console.log('Start welcome button clicked'); // Debug log
+    welcomeModal.classList.add('hidden');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded fired');
+    startQuiz();
+});
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
