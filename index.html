@@ -18,6 +18,15 @@
 		</div>
 
 		<div id="question-container" class="bg-white rounded-3xl shadow-lg p-8 hidden">
+			<div id="score-tracker" class="bg-gray-50 rounded-xl p-4 mb-6">
+				<div class="text-gray-700">
+					<span id="questions-answered">0</span> of <span id="total-questions">0</span> questions answered
+				</div>
+				<div class="text-gray-700">
+					Correct: <span id="correctness-score">0</span>%
+				</div>
+			</div>
+
 			<h2 id="question" class="text-3xl font-bold mb-8 text-gray-900"></h2>
 			<div id="answer-buttons" class="grid gap-4">
 				<!-- Answer buttons will be dynamically added here -->

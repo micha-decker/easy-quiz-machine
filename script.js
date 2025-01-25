@@ -12,6 +12,9 @@ const correctSound = document.getElementById('correctSound');
 const incorrectSound = document.getElementById('incorrectSound');
 const soundToggle = document.getElementById('sound-toggle');
 let soundEnabled = true;
+let correctAnswers = 0;
+let questionsAnswered = 0;
+let totalQuestions = 0;
 
 // Create Audio Context
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -70,9 +73,16 @@ correctSound.addEventListener('canplaythrough', () => {
 console.log('Welcome Modal:', welcomeModal);
 console.log('Start Welcome Button:', startWelcomeButton);
 
-
-
-
+// Create and inject the CSS animation with new colors
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes glowPulse {
+        0% { box-shadow: 0 0 15px rgba(163, 230, 53, 0.4); }  /* Lime-400 */
+        50% { box-shadow: 0 0 35px rgba(163, 230, 53, 0.8); }
+        100% { box-shadow: 0 0 15px rgba(163, 230, 53, 0.4); }
+    }
+`;
+document.head.appendChild(style);
 
 // Test click handler
 startWelcomeButton.addEventListener('click', async () => {
@@ -104,6 +114,8 @@ async function startQuiz() {
     console.log('startQuiz called');
     welcomeModal.classList.remove('hidden');
     questions = await fetchQuestions();
+    totalQuestions = questions.length;
+    updateScoreDisplay();
 }
 
 function displayFetchedQuestions() {
@@ -172,57 +184,36 @@ function selectAnswer(e) {
     const correct = selectedButton.dataset.correct;
 
     if (correct) {
-        if (correctSound) {
-            try {
-                playSound(correctSound, correctGain);
-                score++;
-            } catch (error) {
-                console.log('Error playing correct sound:', error);
-            }
-        }
-    } else {
-        if (incorrectSound) {
-            try {
-                playSound(incorrectSound, incorrectGain);
-            } catch (error) {
-                console.log('Error playing incorrect sound:', error);
-            }
-        }
+        correctAnswers++;
     }
+    questionsAnswered++;
+    updateScoreDisplay();
 
     Array.from(answerButtons.children).forEach(button => {
-        // Remove any previous orange border from all buttons
-        button.classList.remove('border-4', 'border-orange-500');
-
-        // Reset background colors for all buttons
-        button.classList.remove('bg-green-500', 'bg-red-500', 'text-black', 'text-white');
-
-        // Disable hover effect
-        button.classList.add('no-hover'); // Add no-hover class
-
-        // Check if the button is the selected one
+        button.classList.add('answer-button');  // Add this class for z-index
+        
+        // Clear previous styles
+        button.style.animation = '';
+        button.style.boxShadow = '';
+        
         if (button === selectedButton) {
-            // Add orange border to the selected button
-            button.classList.add('border-4', 'border-orange-500');
-
+            button.classList.add('border-8', 'border-lime-400');  // Changed to lime
+            button.style.boxShadow = '0 0 25px rgba(163, 230, 53, 1)';
+            
             if (correct) {
-                // Apply green background for the correct answer
-                button.classList.add('bg-green-500', 'text-black');
+                button.classList.add('bg-emerald-500', 'text-white');  // Darker green
             } else {
-                // Apply red background for the wrong answer that was selected
-                button.classList.add('bg-red-500', 'text-white');
+                button.classList.add('bg-rose-500', 'text-white');  // Softer red
             }
         } else if (button.dataset.correct) {
-            // Apply green background for the correct answer
-            button.classList.add('bg-green-500', 'text-black');
+            button.classList.add('bg-emerald-100', 'text-emerald-800');  // Subtle green
         } else {
-            // Apply red background for the wrong answer
-            button.classList.add('bg-red-500', 'text-white');
+            button.classList.add('bg-rose-100', 'text-rose-800');  // Subtle red
         }
-        button.disabled = true; // Disable all buttons after selection
+        button.disabled = true;
     });
 
-    nextButton.style.display = 'block'; // Show the next button
+    nextButton.style.display = 'block';
 }
 
 nextButton.addEventListener('click', () => {
@@ -232,7 +223,12 @@ nextButton.addEventListener('click', () => {
     } else {
         questionElement.innerHTML = `Quiz completed! You scored ${score} out of ${questions.length}!`;
         nextButton.innerHTML = 'Restart';
-        nextButton.addEventListener('click', startQuiz);
+        nextButton.addEventListener('click', () => {
+            correctAnswers = 0;
+            questionsAnswered = 0;
+            updateScoreDisplay();
+            startQuiz();
+        });
     }
 });
 
@@ -252,4 +248,17 @@ function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
+// Update these elements when loading questions
+function updateScoreDisplay() {
+    document.getElementById('questions-answered').textContent = questionsAnswered;
+    document.getElementById('total-questions').textContent = totalQuestions;
+    const percentage = questionsAnswered === 0 ? 0 : Math.round((correctAnswers / questionsAnswered) * 100);
+    document.getElementById('correctness-score').textContent = percentage;
+}
+
+// Call updateScoreDisplay() whenever:
+// 1. Questions are loaded (to set total)
+// 2. After each answer is selected
+// 3. When moving to next question
 
